@@ -8,23 +8,23 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public class PageUrlQueueService {
     //url队列
-    private static BlockingQueue<String> uncrawledMusicList = new LinkedBlockingQueue<>();
+    private static BlockingQueue<String> pageUrlList = new LinkedBlockingQueue<>();
 
     public static void putUrl(String url) throws InterruptedException {
-        uncrawledMusicList.put(url);
+        pageUrlList.put(url);
     }
 
     public static String takeUrl() throws InterruptedException {
-        return uncrawledMusicList.take();
+        return pageUrlList.take();
     }
 
     public static boolean isUncrawledMusicListEmpty() {
-        return uncrawledMusicList.isEmpty();
+        return pageUrlList.isEmpty();
     }
 
     public static void printAll(){
-        while (!uncrawledMusicList.isEmpty()){
-            System.out.println(uncrawledMusicList.poll());
+        while (!pageUrlList.isEmpty()){
+            System.out.println(pageUrlList.poll());
         }
     }
 
@@ -47,4 +47,9 @@ public class PageUrlQueueService {
 //    peek，element区别：
 //
 //    element() 和 peek() 用于在队列的头部查询元素。与 remove() 方法类似，在队列为空时， element() 抛出一个异常，而 peek() 返回 null
+
+//              Throws exception   	Special value	 Blocks	            Times out
+//    Insert	add(e)    	        offer(e)	     put(e)	            offer(e, time, unit)
+//    Remove	remove()	        poll()	         take()	            poll(time, unit)
+//    Examine	element()	        peek()	         not applicable	    not applicable
 }

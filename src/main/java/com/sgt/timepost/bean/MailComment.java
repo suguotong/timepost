@@ -19,6 +19,8 @@ public class MailComment {
     //邮件类型
     private String Type;
 
+    public MailComment(){}
+
     public MailComment(String name, String email, Date timeStart, Date timeEnd, String type) {
         this.name = name;
         this.email=email;

@@ -1,6 +1,8 @@
 package com.sgt.timepost.main;
 
 import com.sgt.timepost.bean.MailComment;
+import com.sgt.timepost.service.EmailQueueService;
+import com.sgt.timepost.service.HtmlParserService;
 import com.sgt.timepost.service.PageUrlQueueService;
 import com.sgt.timepost.untils.Constants;
 import org.apache.log4j.Logger;
@@ -25,30 +27,41 @@ public class EmailCrawler implements Runnable {
             initUncrawledEmailUrlQueue();
 
             //开始根据url爬去mail
-            while (!PageUrlQueueService.isUncrawledMusicListEmpty()){
+            while (!PageUrlQueueService.isUncrawledMusicListEmpty()) {
 
                 //取出待爬取的url
                 String url = PageUrlQueueService.takeUrl();
 
-
-
+                //email实体
+                List<MailComment> mailCommentList = getComment(url);
+                //添加email实体到队列
+                EmailQueueService.addAllMials(mailCommentList);
+                System.out.println("email 队列 size:"+EmailQueueService.getEmailQueueSize());
+                //打印mail队列大小
+//                EmailQueueService.printEmailQueueSize();
 
             }
 
 
         } catch (InterruptedException e) {
-            logger.error(e.getMessage(),e);
+            logger.error(e.getMessage(), e);
         }
     }
 
     //填充要爬取的歌曲队列
-    public void initUncrawledEmailUrlQueue() throws InterruptedException{
+    public void initUncrawledEmailUrlQueue() throws InterruptedException {
         for (int i = 0; i < 2810; i++) {
             PageUrlQueueService.putUrl("http://hi2future.com/Mail/showlist2/page/" + i + ".html");
+            System.out.println("http://hi2future.com/Mail/showlist2/page/" + i + ".html");
         }
     }
 
-    public MailComment getComment(String url){
-
+    public List<MailComment> getComment(String url) {
+        try {
+            return HtmlParserService.parseComment(url);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }
