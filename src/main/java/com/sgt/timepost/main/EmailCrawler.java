@@ -36,9 +36,8 @@ public class EmailCrawler implements Runnable {
                 List<MailComment> mailCommentList = getComment(url);
                 //添加email实体到队列
                 EmailQueueService.addAllMials(mailCommentList);
-                System.out.println("email 队列 size:"+EmailQueueService.getEmailQueueSize());
                 //打印mail队列大小
-//                EmailQueueService.printEmailQueueSize();
+               EmailQueueService.printEmailQueueSize();
 
             }
 

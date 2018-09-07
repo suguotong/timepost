@@ -26,6 +26,10 @@ public class EmailQueueService {
         return emailInfoQueue.take();
     }
 
+    public static MailComment pollMail() throws InterruptedException {
+        return emailInfoQueue.poll();
+    }
+
     public static boolean isUncrawledMusicListEmpty() {
         return emailInfoQueue.isEmpty();
     }
@@ -35,8 +39,6 @@ public class EmailQueueService {
     }
 
     public static void printEmailQueueSize(){
-        while (!emailInfoQueue.isEmpty()){
-            System.out.println(""+ emailInfoQueue.size());
-        }
+            System.out.println("email 队列 size:"+ emailInfoQueue.size());
     }
 }
