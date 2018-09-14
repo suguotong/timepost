@@ -8,39 +8,57 @@ import org.apache.log4j.Logger;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 
 /**
  * Created by sgt on 2018/9/4 0004.
  */
-public class EmailSaveService implements Runnable{
+public class EmailSaveService implements Runnable {
     private static Logger logger = Logger.getLogger(EmailSaveService.class);
+
     @Override
     public void run() {
-        while (!EmailQueueService.isUncrawledMusicListEmpty()){
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        //数据库线程启动
+        System.out.println("数据库线程启动");
+        while (!EmailQueueService.isUncrawledMusicListEmpty()) {
             try {
-                MailComment mailComment = EmailQueueService.pollMail();
-                if(mailComment!=null){
-                    save(mailComment);
-                    logger.info("存入数据库1条");
-                }else {
-                    logger.info("存入数据库线程休眠");
-                    Thread.sleep(2000);
+                if (EmailQueueService.getEmailQueueSize() > 30) {
+                    MailComment mailComment = EmailQueueService.pollMail();
+                    if (mailComment != null) {
+                        save(mailComment);
+                        logger.info("存入数据库1条");
+                    }
+                } else {
+                    System.out.println("存入数据库线程休眠");
+                    Thread.sleep(3000);
                 }
             } catch (InterruptedException e) {
-                logger.info(e.getMessage(),e);
+                logger.info(e.getMessage(), e);
             }
         }
     }
 
-    public void save(MailComment mailComment){
+    public void save(MailComment mailComment) {
         Connection connection1 = MysqlConnPool.getInstance().getConnection();
         int exeCount = 0;
         try {
-            String sql="INSERT INTO EmailInfo(`name`, `email`, `content`, `time_start`, `timeEnd`, `Type`) VALUES ("+mailComment.getName()+","+mailComment.getContent()+","+mailComment.getTimeStart()+","+mailComment.getTimeEnd()+","+mailComment.getType()+");";
+            String name = mailComment.getName() == null ? "" : mailComment.getName();
+            String type = mailComment.getType() == null ? "" : mailComment.getType();
+            String email = mailComment.getEmail() == null ? "" : mailComment.getEmail();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+            String timeStart = sdf.format(mailComment.getTimeStart());
+            String timeEnd = sdf.format(mailComment.getTimeEnd());
+            String sql = "INSERT INTO EmailInfo(`name`, `email`, `content`, `time_start`, `timeEnd`, `Type`) VALUES ('" + name + "','" + email + "','" + mailComment.getContent() + "','" + timeStart + "','" + timeEnd + "','" + type + "')";
+            System.out.println(sql);
             exeCount = MysqlHelper.executeUpdate(connection1, sql);
             connection1.close();
         } catch (SQLException e) {
-            logger.info(e.getMessage(),e);
+            logger.info(e.getMessage(), e);
         }
     }
 }

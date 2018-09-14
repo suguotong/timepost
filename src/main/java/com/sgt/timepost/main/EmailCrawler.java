@@ -22,6 +22,9 @@ public class EmailCrawler implements Runnable {
 
     @Override
     public void run() {
+        //爬取线程启动
+        System.out.println("爬取线程启动");
+        logger.info("爬取线程启动");
         try {
             //初始化待爬的url队列
             initUncrawledEmailUrlQueue();
@@ -37,7 +40,11 @@ public class EmailCrawler implements Runnable {
                 //添加email实体到队列
                 EmailQueueService.addAllMials(mailCommentList);
                 //打印mail队列大小
-               EmailQueueService.printEmailQueueSize();
+                EmailQueueService.printEmailQueueSize();
+                if(EmailQueueService.getEmailQueueSize()>100){
+                    System.out.println("爬取线程休眠");
+                    Thread.sleep(500);
+                }
 
             }
 

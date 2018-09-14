@@ -1,6 +1,7 @@
 package com.sgt.timepost.service;
 
 import com.sgt.timepost.bean.MailComment;
+import com.sgt.timepost.untils.HttpClientUtil;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -18,10 +19,21 @@ public class HtmlParserService {
 
     //通过url获取email
      public  static List<MailComment> parseComment(String emailUrl) throws Exception{
+//         System.getProperties().setProperty("proxySet", "true");
+//         //用的代理服务器
+//         System.getProperties().setProperty("http.proxyHost", "121.232.194.119");
+//         //代理端口
+//         System.getProperties().setProperty("http.proxyPort", "9000");
+//         String  agent="Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:57.0) Gecko/20100101 Firefox/57.0";
+
+//         URL uri = new URL(emailUrl);
+//         Document document = Jsoup.parse(uri,10000);
+//         Document document = Jsoup.connect(emailUrl).userAgent(agent).timeout(10000).ignoreHttpErrors(true).get();
+
+         String html = HttpClientUtil.sendGetRequest(emailUrl,null);
+         Document document = Jsoup.parse(html);
          MailComment mailComment = null;
          List<MailComment> mailCommentList = new ArrayList<>();
-         URL uri = new URL(emailUrl);
-         Document document = Jsoup.parse(uri,3000);
          Elements emailInfos = document.getElementsByClass("mail-item");
          SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
          for(Element emailInfo : emailInfos){
