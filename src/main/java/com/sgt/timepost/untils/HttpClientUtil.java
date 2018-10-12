@@ -8,6 +8,7 @@ import java.nio.charset.Charset;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import javax.net.ssl.SSLContext;
@@ -23,6 +24,7 @@ import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.config.Registry;
@@ -49,7 +51,7 @@ import org.slf4j.LoggerFactory;
 
 public class HttpClientUtil {
     private static Logger logger = LoggerFactory.getLogger(HttpClientUtil.class);
-    private final static String proxyIP= "175.31.213.116";
+    private final static String proxyIP= "";
     private final static int proxyPort= 80;
     private final static String scheme= "http";
     private final static int CONNECT_TIMEOUT = 10000;// 连接超时毫秒
@@ -131,6 +133,22 @@ public class HttpClientUtil {
     /**
      * 发送HTTP_GET请求
      *
+     */
+    public static String sendGetRequest(String reqURL, String param) {
+        return sendGet(reqURL,param,null);
+    }
+
+    /**
+     * 发送HTTP_GET请求
+     *
+     */
+    public static String sendGetRequestWithHeader(String reqURL, String param,Map<String,String> headers) {
+        return sendGet(reqURL,param,headers);
+    }
+
+    /**
+     * 发送HTTP_GET请求
+     *
      * @param requestURL 请求地址(含参数)
      * @return 远程主机响应正文
      * @see 1)该方法会自动关闭连接,释放资源
@@ -142,13 +160,20 @@ public class HttpClientUtil {
      * @see 若响应消息头中无Content-Type属性,则会使用HttpClient内部默认的ISO-8859-1作为响应报文的解码字符
      * 集
      */
-    public static String sendGetRequest(String reqURL, String param) {
+    private static String sendGet(String reqURL, String param,Map<String,String> headers){
         if (null != param) {
             reqURL += "?" + param;
         }
         String respContent = RESP_CONTENT; // 响应内容
         // reqURL = URLDecoder.decode(reqURL, ENCODE_CHARSET);
         HttpGet httpget = new HttpGet(reqURL);
+        if(headers!=null){
+            Set<String> keys = headers.keySet();
+            for (Iterator<String> i = keys.iterator();i.hasNext();){
+                String key = (String)i.next();
+                httpget.addHeader(key,headers.get(key));
+            }
+        }
         CloseableHttpResponse response = null;
         try {
             response = httpClient.execute(httpget, HttpClientContext.create()); // 执行GET请求
@@ -168,7 +193,7 @@ public class HttpClientUtil {
         } catch (ParseException pe) {
             logger.error("请求通信[" + reqURL + "]时解析异常,堆栈轨迹如下", pe);
         } catch (IOException ioe) {
-             // 该异常通常是网络原因引起的,如HTTP服务器未启动等
+            // 该异常通常是网络原因引起的,如HTTP服务器未启动等
             logger.error("请求通信[" + reqURL + "]时网络异常,堆栈轨迹如下", ioe);
         } catch (Exception e) {
             logger.error("请求通信[" + reqURL + "]时偶遇异常,堆栈轨迹如下", e);
