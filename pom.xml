@@ -170,6 +170,9 @@
             <artifactId>fastdfs-client-java</artifactId>
             <version>1.25</version>
         </dependency>
+
+
+
         <dependency>
             <groupId>c3p0</groupId>
             <artifactId>c3p0</artifactId>
